@@ -1,0 +1,18 @@
+# Preview/demonstração gerado (não faz parte do app)
+_preview_artifact.html
+_guia.html
+_test.html
+
+# Página de terceiros usada só como referência (não redistribuir)
+inspiração/
+
+# Logo original duplicada na raiz (a usada está em assets/img/logo.jpg)
+271641921_*.jpg
+
+# OS / editores
+Thumbs.db
+.DS_Store
+*.log
+
+# Config local do Claude Code
+.claude/
