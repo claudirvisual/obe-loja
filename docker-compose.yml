@@ -5,16 +5,16 @@
 #   - https://obeinformatica.com        (canônico — a loja)
 #   - https://www.obeinformatica.com    (redireciona 301 -> raiz)
 #
-# ⚠️ AJUSTAR antes de subir (3 nomes que dependem deste servidor):
-#   1) networks: nome da rede externa do Traefik           (procure: TRAEFIK_NET)
-#   2) entrypoints: nome do entrypoint HTTPS               (procure: websecure)
-#   3) certresolver: nome do resolver de TLS/Let's Encrypt (procure: le)
-#   Use os MESMOS nomes que os serviços panel./alumnos./api. já usam.
+# 3 nomes dependem deste servidor. Os padrões abaixo (traefik / websecure / le)
+# são os mais comuns — se não baterem com o do panel./alumnos., defina como
+# variáveis de ambiente na tela do Portainer (Environment variables):
+#   TRAEFIK_NETWORK      (rede externa do Traefik)     padrão: traefik
+#   TRAEFIK_ENTRYPOINT   (entrypoint HTTPS)            padrão: websecure
+#   TRAEFIK_CERTRESOLVER (resolver TLS/Let's Encrypt)  padrão: le
 #
-# ⚠️ IMPORTANTE: hoje a RAIZ (obeinformatica.com) já é servida por outro
-#    container (a tela de login do aluno, idêntica ao alumnos.). É preciso
-#    REMOVER/REPONTAR aquele router com Host(`obeinformatica.com`) — senão
-#    haverá conflito de rota. O login do aluno continua no alumnos. (não perde).
+# ⚠️ Hoje a RAIZ já é servida por outro container (o login do aluno, igual ao
+#    alumnos.). É preciso REMOVER/REPONTAR aquele router com Host(`obeinformatica.com`)
+#    — senão dá conflito. O login do aluno continua no alumnos. (não se perde).
 # ============================================================================
 
 services:
@@ -24,30 +24,29 @@ services:
     container_name: obe-loja
     restart: unless-stopped
     networks:
-      - traefik
+      - proxy
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK:-traefik}"
 
       # --- Router principal: raiz (canônico) --------------------------------
       - "traefik.http.routers.obe-loja.rule=Host(`obeinformatica.com`)"
-      - "traefik.http.routers.obe-loja.entrypoints=websecure"
+      - "traefik.http.routers.obe-loja.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}"
       - "traefik.http.routers.obe-loja.tls=true"
-      - "traefik.http.routers.obe-loja.tls.certresolver=le"
+      - "traefik.http.routers.obe-loja.tls.certresolver=${TRAEFIK_CERTRESOLVER:-le}"
       - "traefik.http.services.obe-loja.loadbalancer.server.port=80"
 
       # --- Router do www: redireciona 301 para a raiz -----------------------
       - "traefik.http.routers.obe-loja-www.rule=Host(`www.obeinformatica.com`)"
-      - "traefik.http.routers.obe-loja-www.entrypoints=websecure"
+      - "traefik.http.routers.obe-loja-www.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}"
       - "traefik.http.routers.obe-loja-www.tls=true"
-      - "traefik.http.routers.obe-loja-www.tls.certresolver=le"
+      - "traefik.http.routers.obe-loja-www.tls.certresolver=${TRAEFIK_CERTRESOLVER:-le}"
       - "traefik.http.routers.obe-loja-www.middlewares=obe-www-redirect"
       - "traefik.http.middlewares.obe-www-redirect.redirectregex.regex=^https?://www\\.obeinformatica\\.com/(.*)"
       - "traefik.http.middlewares.obe-www-redirect.redirectregex.replacement=https://obeinformatica.com/$${1}"
       - "traefik.http.middlewares.obe-www-redirect.redirectregex.permanent=true"
 
 networks:
-  # Rede externa onde o Traefik enxerga os containers.
-  # AJUSTAR "name" para a rede real deste servidor (a mesma do panel./alumnos.).
-  traefik:
+  proxy:
     external: true
-    name: traefik # <-- TRAEFIK_NET: trocar pelo nome real
+    name: ${TRAEFIK_NETWORK:-traefik}

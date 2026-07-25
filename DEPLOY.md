@@ -27,19 +27,26 @@ A loja já traz os botões **"Área del alumno"** → `alumnos.` e **"Sistema"**
    router**. Se dois routers reivindicarem o mesmo Host, o Traefik dá conflito.
    → O login do aluno **não se perde**: continua no `alumnos.`.
 
-## Passos
+## Passos (Portainer — método Repository)
 
-Ajuste os 3 nomes marcados no `docker-compose.yml` (rede do Traefik, entrypoint
-HTTPS, certresolver) pros mesmos que o `panel./alumnos.` já usam. Depois:
+1. **Stacks → Add stack → Repository.**
+   - Repository URL: `https://github.com/claudirvisual/obe-loja`
+   - Compose path: `docker-compose.yml`
+2. **Environment variables** — só se os padrões não baterem com o `panel./alumnos.`:
+   - `TRAEFIK_NETWORK` (padrão `traefik`)
+   - `TRAEFIK_ENTRYPOINT` (padrão `websecure`)
+   - `TRAEFIK_CERTRESOLVER` (padrão `le`)
+   > Pra descobrir os valores certos: abra o stack do `panel.` ou `alumnos.` no
+   > Portainer e copie o nome da rede e dos labels `entrypoints=` / `certresolver=`.
+3. **Deploy the stack.** O Portainer clona o repo e faz o build (nginx + estáticos).
+
+Alternativa por linha de comando:
 
 ```bash
-git clone https://github.com/claudirvisual/obe-loja.git
-cd obe-loja
-docker compose up -d --build
+git clone https://github.com/claudirvisual/obe-loja.git && cd obe-loja
+TRAEFIK_NETWORK=traefik TRAEFIK_ENTRYPOINT=websecure TRAEFIK_CERTRESOLVER=le \
+  docker compose up -d --build
 ```
-
-Ou, no Portainer: **Stacks → Add stack → Repository** apontando pro repo, arquivo
-`docker-compose.yml`.
 
 ## Conferir
 
