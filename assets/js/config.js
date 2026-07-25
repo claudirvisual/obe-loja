@@ -21,10 +21,10 @@ export const CONFIG = {
 
   // --- Contacto (completar cuando el cliente lo defina) --------------------
   // Dejar vacío oculta el botón/enlace. Formato internacional sin "+" ni espacios.
-  WHATSAPP_NUMBER: "", // ej: "595981123456"
-  EMAIL_CONTACTO: "", // ej: "info@obeinformatica.com"
+  WHATSAPP_NUMBER: "595986686132", // 0986-686132 (Paraguay, formato internacional)
+  EMAIL_CONTACTO: "eliobx@hotmail.com",
   TELEFONO: "", // ej: "0981 123 456"
-  DIRECCION: "", // ej: "Av. ... , Ciudad del Este"
+  DIRECCION: "Av. Mondaí, al costado del Supermercado Stock — Presidente Franco, Alto Paraná, PY",
   INSTAGRAM_URL: "https://instagram.com/obeinformatica",
 
   // --- Prueba social (NO inventamos datos: null/0 oculta el dato) ----------
@@ -43,10 +43,13 @@ export const CONFIG = {
   // ⚠️ PENDIENTE DE CONFIRMAR CON CLAUDIR (proyecto principal):
   //    ¿inserción directa en `leads` con anon, o endpoint público en la API?
   //
+  //   "whatsapp" -> abre WhatsApp con la solicitud ya formateada (no usa el banco).
   //   "supabase" -> inserta en la tabla `leads` vía PostgREST con la anon key.
   //   "api"      -> POST a LEAD_API_ENDPOINT (endpoint público de la API).
   //   "off"      -> no envía nada; solo muestra el resumen (modo demo seguro).
-  LEAD_MODE: "supabase",
+  // Nota: el INSERT directo con `anon` está bloqueado por RLS en este proyecto
+  // (probado 2026-07-25). Por eso se usa "whatsapp" hasta habilitar la policy.
+  LEAD_MODE: "whatsapp",
   LEAD_API_ENDPOINT: "https://api.obeinformatica.com/public/leads",
 
   // Origen que se guarda en cada lead para rastrear la fuente

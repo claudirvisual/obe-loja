@@ -2,7 +2,7 @@
 // OBE Informática — Vitrine · Router SPA (hash) + vistas
 // ============================================================================
 import { CONFIG } from "./config.js";
-import { fetchCursos, fetchCurso, submitLead } from "./data.js";
+import { fetchCursos, fetchCurso, submitLead, leadWhatsAppUrl } from "./data.js";
 import {
   esc,
   gs,
@@ -570,10 +570,34 @@ async function viewInscripcion([id]) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     status.hidden = true;
-    submit.disabled = true;
-    submit.textContent = "Enviando…";
     const fd = new FormData(form);
     const lead = Object.fromEntries(fd.entries());
+
+    // Modo WhatsApp: abrimos el chat con la solicitud ya formateada.
+    // Se hace de forma síncrona (sin await previo) para no perder el gesto
+    // del usuario y evitar el bloqueo de pop-ups.
+    if (CONFIG.LEAD_MODE === "whatsapp") {
+      const url = leadWhatsAppUrl(lead);
+      if (url) window.open(url, "_blank", "noopener");
+      form.innerHTML = `
+        <div class="success">
+          <div class="success-ic">✅</div>
+          <h2>¡Ya casi está!</h2>
+          <p>Abrimos <strong>WhatsApp</strong> con tu solicitud para el curso
+             <strong>${esc(lead.curso)}</strong>. Envianos ese mensaje y te
+             contactamos para coordinar tu inscripción.</p>
+          ${
+            url
+              ? `<a class="btn btn-primary" href="${url}" target="_blank" rel="noopener">Abrir WhatsApp</a>`
+              : ""
+          }
+          <a class="btn btn-ghost" href="#/cursos">Ver más cursos</a>
+        </div>`;
+      return;
+    }
+
+    submit.disabled = true;
+    submit.textContent = "Enviando…";
     const r = await submitLead(lead);
     if (r.ok) {
       form.innerHTML = `

@@ -64,6 +64,26 @@ export async function fetchCurso(id) {
 }
 
 /**
+ * Arma el enlace de WhatsApp con la solicitud de inscripción ya formateada.
+ * Devuelve null si no hay WHATSAPP_NUMBER configurado.
+ */
+export function leadWhatsAppUrl(lead) {
+  if (!CONFIG.WHATSAPP_NUMBER) return null;
+  const texto = [
+    "*Nueva solicitud de inscripción — OBE Informática*",
+    `Nombre: ${lead.nombre || "-"}`,
+    `Curso: ${lead.curso || "-"}`,
+    `Teléfono: ${lead.telefono || "-"}`,
+    lead.email ? `Correo: ${lead.email}` : null,
+    lead.documento ? `Cédula: ${lead.documento}` : null,
+    lead.mensaje ? `Mensaje: ${lead.mensaje}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  return `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(texto)}`;
+}
+
+/**
  * Registra una solicitud de inscripción (checkout = lead / cobro por carné).
  * Devuelve { ok, mode, detail }. Nunca lanza: el modo de envío es configurable
  * y está pendiente de confirmación con el proyecto principal.
