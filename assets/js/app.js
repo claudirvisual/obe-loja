@@ -2,7 +2,13 @@
 // OBE Informática — Vitrine · Router SPA (hash) + vistas
 // ============================================================================
 import { CONFIG } from "./config.js";
-import { fetchCursos, fetchCurso, submitLead, leadWhatsAppUrl } from "./data.js";
+import {
+  fetchCursos,
+  fetchCurso,
+  submitLead,
+  leadWhatsAppUrl,
+  fetchVitrineConfig,
+} from "./data.js";
 import {
   esc,
   gs,
@@ -116,8 +122,38 @@ function initCounters() {
   nums.forEach((n) => io.observe(n));
 }
 
+// Aplica la config remota (del panel del ERP) sobre los valores por defecto.
+function applyRemoteConfig(r) {
+  if (!r || typeof r !== "object") return;
+  if (r.hero) CONFIG.HERO = { ...CONFIG.HERO, ...r.hero };
+  if (r.quienes_somos) CONFIG.QUIENES_SOMOS = { ...CONFIG.QUIENES_SOMOS, ...r.quienes_somos };
+  if (Array.isArray(r.testimonios)) CONFIG.TESTIMONIOS = r.testimonios;
+  if (Array.isArray(r.aliados)) CONFIG.ALIADOS = r.aliados;
+  if (Array.isArray(r.faq)) CONFIG.FAQ_CUSTOM = r.faq;
+  if (r.social_proof) CONFIG.SOCIAL_PROOF = r.social_proof;
+  if (r.contacto) {
+    const c = r.contacto;
+    if (c.whatsapp !== undefined) CONFIG.WHATSAPP_NUMBER = c.whatsapp || "";
+    if (c.email !== undefined) CONFIG.EMAIL_CONTACTO = c.email || "";
+    if (c.telefono !== undefined) CONFIG.TELEFONO = c.telefono || "";
+    if (c.direccion !== undefined) CONFIG.DIRECCION = c.direccion || "";
+    if (c.instagram !== undefined) CONFIG.INSTAGRAM_URL = c.instagram || "";
+  }
+  if (r.flags) CONFIG.FLAGS = { ...CONFIG.FLAGS, ...r.flags };
+  if (r.imagenes) {
+    if (r.imagenes.logo_url) CONFIG.LOGO_URL = r.imagenes.logo_url;
+    CONFIG.HERO_URL = r.imagenes.hero_url || "";
+  }
+  if (r.lead_mode) CONFIG.LEAD_MODE = r.lead_mode;
+}
+
 window.addEventListener("hashchange", router);
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
+  try {
+    applyRemoteConfig(await fetchVitrineConfig());
+  } catch {
+    /* usa defaults de config.js */
+  }
   buildChrome();
   router();
 });
@@ -135,7 +171,7 @@ function buildChrome() {
   document.getElementById("site-header").innerHTML = `
     <div class="wrap header-inner">
       <a class="brand" href="#/home">
-        <img src="assets/img/logo.jpg" alt="OBE Informática" />
+        <img src="${CONFIG.LOGO_URL || "assets/img/logo.jpg"}" alt="OBE Informática" />
       </a>
       <button class="nav-toggle" aria-label="Menú" onclick="document.body.classList.toggle('nav-open')">${icon("menu", { size: 24 })}</button>
       <nav class="nav">
@@ -180,7 +216,7 @@ function buildChrome() {
   document.getElementById("site-footer").innerHTML = `
     <div class="wrap foot-inner">
       <div class="foot-brand">
-        <img class="foot-logo" src="assets/img/logo.jpg" alt="OBE Informática" />
+        <img class="foot-logo" src="${CONFIG.LOGO_URL || "assets/img/logo.jpg"}" alt="OBE Informática" />
         <p class="muted">Formación profesional · Paraguay</p>
         <p class="muted">Pago por carné, en cuotas · Guaraníes</p>
         ${social ? `<div class="foot-social">${social}</div>` : ""}
@@ -210,28 +246,23 @@ function buildChrome() {
   buildFloating(waFoot);
 }
 
-// Franja de aliados/certificaciones en el footer (placeholder gestionable).
+// Franja de aliados/certificaciones en el footer (se activa desde el panel).
 function aliadosFooter() {
-  if (CONFIG.MOSTRAR_PLACEHOLDERS === false) return "";
-  const items = CONFIG.ALIADOS || [];
+  if (!CONFIG.FLAGS || !CONFIG.FLAGS.mostrar_aliados) return "";
+  const items = (CONFIG.ALIADOS || []).filter((a) => a && (a.nombre || a.logo_url));
   if (!items.length) return "";
   return `<div class="wrap foot-aliados">
-    <span class="foot-aliados-label">${ejemploBadge()} Aliados y certificaciones</span>
+    <span class="foot-aliados-label">Aliados y certificaciones</span>
     <div class="aliados-row">
       ${items
-        .map(
-          (a) => `<span class="aliado-chip" title="${esc(a.nombre)}">${esc(a.nombre)}</span>`
+        .map((a) =>
+          a.logo_url
+            ? `<span class="aliado-chip aliado-logo" title="${esc(a.nombre || "")}"><img src="${esc(a.logo_url)}" alt="${esc(a.nombre || "")}" /></span>`
+            : `<span class="aliado-chip" title="${esc(a.nombre)}">${esc(a.nombre)}</span>`
         )
         .join("")}
     </div>
   </div>`;
-}
-
-// Sello reutilizable para marcar contenido de ejemplo.
-function ejemploBadge() {
-  return CONFIG.MOSTRAR_PLACEHOLDERS === false
-    ? ""
-    : `<span class="ej-badge">Contenido de ejemplo</span>`;
 }
 
 // Botones flotantes: WhatsApp (si hay número) + volver arriba
@@ -287,7 +318,9 @@ function scrollToAnchor() {
 // ---------------------------------------------------------------------------
 async function viewHome() {
   const cursos = await fetchCursos();
-  const populares = cursos.slice(0, 6);
+  const H = CONFIG.HERO || {};
+  const destacados = cursos.filter((c) => c.vitrine_destaque);
+  const populares = (destacados.length ? destacados : cursos).slice(0, 6);
   const wa = waLink("Hola, quiero información sobre los cursos de OBE Informática.");
   const ctaSecundario = wa
     ? `<a class="btn btn-wa btn-lg" href="${wa}" target="_blank" rel="noopener">${icon("whatsapp", { size: 20 })} Consultá por WhatsApp</a>`
@@ -298,11 +331,8 @@ async function viewHome() {
       <div class="wrap hero-inner">
         <div class="hero-copy reveal">
           <span class="pill">${icon("graduation-cap", { size: 16, cls: "pill-ic" })} Formación profesional · Certificado incluido</span>
-          <h1>Transformá tu vida <span class="hl">estudiando</span> desde cualquier lugar del Paraguay</h1>
-          <p class="lead">
-            Cursos con certificado, pensados para el mercado laboral paraguayo.
-            Pagás cómodamente <strong>por carné, en cuotas</strong>.
-          </p>
+          <h1>${esc(H.titulo || "")} <span class="hl">${esc(H.destaque || "")}</span> ${esc(H.titulo_fim || "")}</h1>
+          <p class="lead">${esc(H.subtitulo || "")}</p>
           <div class="hero-cta">
             <a class="btn btn-primary btn-lg" href="#/cursos">Ver los ${cursos.length} cursos</a>
             ${ctaSecundario}
@@ -320,9 +350,9 @@ async function viewHome() {
               <div class="ha-benefits-title"><strong>OBE Informática</strong><small>Formación profesional</small></div>
             </div>
             <ul class="ha-list">
-              ${HERO_BENEFITS.map(
-                (b) => `<li><span class="ha-check">${icon("check", { size: 16 })}</span> ${b}</li>`
-              ).join("")}
+              ${(H.benefits || [])
+                .map((b) => `<li><span class="ha-check">${icon("check", { size: 16 })}</span> ${esc(b)}</li>`)
+                .join("")}
             </ul>
           </div>
           <div class="ha-card ha-mini ha-mini-mod">
@@ -394,9 +424,11 @@ async function viewHome() {
         <h2>Preguntas y respuestas</h2>
       </div>
       <div class="faq reveal">
-        ${FAQ.map(
-          (q) => `<details class="faq-item"><summary>${q.q}</summary><div class="faq-body"><p>${q.a}</p></div></details>`
-        ).join("")}
+        ${(CONFIG.FAQ_CUSTOM && CONFIG.FAQ_CUSTOM.length ? CONFIG.FAQ_CUSTOM : FAQ)
+          .map(
+            (q) => `<details class="faq-item"><summary>${esc(q.q)}</summary><div class="faq-body"><p>${esc(q.a)}</p></div></details>`
+          )
+          .join("")}
       </div>
     </section>
 
@@ -440,13 +472,6 @@ function wireSearchbar() {
 }
 
 // --- Contenido estático de la home -----------------------------------------
-// Beneficios que se muestran en la tarjeta del hero (distintos, sin repetir).
-const HERO_BENEFITS = [
-  "Certificado incluido",
-  "Pago por carné, en cuotas",
-  "Docentes del área",
-];
-
 const WHY = [
   { ic: "award", t: "Certificado incluido", d: "Recibí tu certificado al finalizar el curso." },
   { ic: "wallet", t: "Pago por carné", d: "Cuotas accesibles en Guaraníes, sin tarjeta ni pago online." },
@@ -519,11 +544,12 @@ function areasSection(cursos) {
 // --- Stats band -------------------------------------------------------------
 function statsStrip(nCursos) {
   const sp = CONFIG.SOCIAL_PROOF || {};
+  const showSP = CONFIG.FLAGS && CONFIG.FLAGS.mostrar_social_proof;
   const items = [];
-  if (sp.anos) items.push({ n: sp.anos, s: "+", l: "años de experiencia" });
-  if (sp.alumnos) items.push({ n: sp.alumnos, s: "+", l: "alumnos" });
+  if (showSP && sp.anos) items.push({ n: sp.anos, s: "+", l: "años de experiencia" });
+  if (showSP && sp.alumnos) items.push({ n: sp.alumnos, s: "+", l: "alumnos" });
   items.push({ n: nCursos, s: "", l: "cursos disponibles" });
-  if (sp.docentes) items.push({ n: sp.docentes, s: "", l: "docentes" });
+  if (showSP && sp.docentes) items.push({ n: sp.docentes, s: "", l: "docentes" });
   return `<section class="stats"><div class="wrap stats-inner reveal">
     ${items
       .map(
@@ -537,21 +563,20 @@ function statsStrip(nCursos) {
 // --- ¿Quiénes somos? (texto + galería placeholder) -------------------------
 function quienesSomosSection() {
   const q = CONFIG.QUIENES_SOMOS;
-  if (CONFIG.MOSTRAR_PLACEHOLDERS === false || !q || !(q.parrafos || []).length) return "";
-  const n = Math.max(0, q.galeria_placeholders || 0);
-  const gallery = n
-    ? `<div class="qs-gallery reveal" aria-hidden="true">
-        ${Array.from({ length: n })
-          .map(() => `<div class="qs-photo"><span>${icon("image", { size: 26 })}</span><small>Foto — a completar</small></div>`)
-          .join("")}
+  if (!CONFIG.FLAGS || !CONFIG.FLAGS.mostrar_quienes) return "";
+  if (!q || !(q.parrafos || []).filter(Boolean).length) return "";
+  const fotos = (q.galeria || []).filter(Boolean);
+  const gallery = fotos.length
+    ? `<div class="qs-gallery reveal">
+        ${fotos.map((u) => `<div class="qs-photo qs-photo-real"><img src="${esc(u)}" alt="OBE Informática" /></div>`).join("")}
       </div>`
     : "";
   return `<section class="strip-alt" id="quienes"><div class="wrap section">
     <div class="qs-grid">
       <div class="qs-copy reveal">
-        <span class="eyebrow">${ejemploBadge()} Nosotros</span>
+        <span class="eyebrow">Nosotros</span>
         <h2>${esc(q.titulo || "¿Quiénes somos?")}</h2>
-        ${(q.parrafos || []).map((p) => `<p class="muted">${esc(p)}</p>`).join("")}
+        ${(q.parrafos || []).filter(Boolean).map((p) => `<p class="muted">${esc(p)}</p>`).join("")}
         <a class="btn btn-primary" href="#/inscripcion">Quiero más información</a>
       </div>
       ${gallery}
@@ -561,11 +586,11 @@ function quienesSomosSection() {
 
 // --- Testimonios (placeholder gestionable) ---------------------------------
 function testimoniosSection() {
-  const t = CONFIG.TESTIMONIOS || [];
-  if (CONFIG.MOSTRAR_PLACEHOLDERS === false || !t.length) return "";
+  const t = (CONFIG.TESTIMONIOS || []).filter((x) => x && x.texto);
+  if (!CONFIG.FLAGS || !CONFIG.FLAGS.mostrar_testimonios || !t.length) return "";
   return `<section class="wrap section">
     <div class="section-head center reveal">
-      <span class="eyebrow">${ejemploBadge()} Quienes estudian, recomiendan</span>
+      <span class="eyebrow">Quienes estudian, recomiendan</span>
       <h2>Lo que dicen nuestros alumnos</h2>
     </div>
     <div class="grid testimonios">
@@ -832,13 +857,20 @@ function cardCurso(c) {
   const ch = c.carga_horaria ? `${c.carga_horaria} h` : "";
   const sub = [dur, ch].filter(Boolean).join(" · ");
   const desc = excerpt(c.descricao || c.o_que_estuda, 92);
-  return `
-    <a class="card curso-card" href="#/curso/${encodeURIComponent(c.id)}">
-      <div class="curso-media">
+  const media = c.imagem_url
+    ? `<div class="curso-media curso-media-photo">
+        <img class="curso-media-img" src="${esc(c.imagem_url)}" alt="${esc(c.nome)}" loading="lazy" />
+        <span class="curso-media-area">${esc(a.label)}</span>
+        <span class="tag curso-media-tag">${modalidadLabel(c.modalidade)}</span>
+      </div>`
+    : `<div class="curso-media">
         <span class="curso-media-ic">${icon(a.icon, { size: 26 })}</span>
         <span class="curso-media-area">${esc(a.label)}</span>
         <span class="tag curso-media-tag">${modalidadLabel(c.modalidade)}</span>
-      </div>
+      </div>`;
+  return `
+    <a class="card curso-card" href="#/curso/${encodeURIComponent(c.id)}">
+      ${media}
       <div class="curso-body">
         <h3>${esc(c.nome)}</h3>
         ${sub ? `<p class="card-sub muted">${esc(sub)}</p>` : ""}
