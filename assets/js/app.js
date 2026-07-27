@@ -1,14 +1,14 @@
 // ============================================================================
 // OBE Informática — Vitrine · Router SPA (hash) + vistas
 // ============================================================================
-import { CONFIG } from "./config.js";
+import { CONFIG } from "./config.js?v=2";
 import {
   fetchCursos,
   fetchCurso,
   submitLead,
   leadWhatsAppUrl,
   fetchVitrineConfig,
-} from "./data.js";
+} from "./data.js?v=2";
 import {
   esc,
   gs,
@@ -20,8 +20,8 @@ import {
   excerpt,
   AREAS,
   miles,
-} from "./ui.js";
-import { icon } from "./icons.js";
+} from "./ui.js?v=2";
+import { icon } from "./icons.js?v=2";
 
 // Fila de estrellas (SVG) para la prueba visual.
 const STARS = Array.from({ length: 5 }, () => icon("star", { size: 16, cls: "star-ic" })).join("");

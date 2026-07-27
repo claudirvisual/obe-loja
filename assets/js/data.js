@@ -2,7 +2,7 @@
 // Capa de datos — lee de la API del ERP (config + catálogo) con fallback a
 // Supabase REST directo para el catálogo si la API no responde.
 // ============================================================================
-import { CONFIG } from "./config.js";
+import { CONFIG } from "./config.js?v=2";
 
 const API = CONFIG.API_BASE;
 const REST = `${CONFIG.SUPABASE_URL}/rest/v1`;
