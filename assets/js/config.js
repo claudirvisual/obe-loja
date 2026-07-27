@@ -35,9 +35,63 @@ export const CONFIG = {
     // "cursos" se calcula solo desde el catálogo
   },
 
-  // Testimonios reales. Vacío = la sección no aparece. NO inventar.
+  // ==========================================================================
+  // CONTENIDO DE EJEMPLO (placeholders para completar) -----------------------
+  // --------------------------------------------------------------------------
+  // ⚠️ IMPORTANTE: estas secciones traen texto de EJEMPLO (Lorem ipsum) para
+  //    que se vean en la vitrine y sepas dónde va cada cosa. Antes de publicar
+  //    en serio: reemplazá por texto REAL, o vaciá el arreglo ([]) para ocultar
+  //    la sección, o poné MOSTRAR_PLACEHOLDERS en false para ocultarlas todas.
+  //
+  //    MOSTRAR_PLACEHOLDERS true  -> muestra las secciones de ejemplo con un
+  //                                   sello "Contenido de ejemplo" (para que
+  //                                   nadie confunda el Lorem con texto real).
+  //    MOSTRAR_PLACEHOLDERS false -> oculta TODO el contenido de ejemplo.
+  MOSTRAR_PLACEHOLDERS: true,
+
+  // ¿Quiénes somos? — reemplazá por la historia real de OBE Informática.
+  QUIENES_SOMOS: {
+    titulo: "¿Quiénes somos?",
+    parrafos: [
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. OBE Informática es una institución de formación profesional en Paraguay. (Texto de ejemplo — reemplazar por la descripción real.)",
+      "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation. (Texto de ejemplo — completar.)",
+    ],
+    // Galería: cantidad de fotos de ejemplo a mostrar (0 = sin galería).
+    // Cuando tengas fotos reales, se cambia por rutas de imagen.
+    galeria_placeholders: 6,
+  },
+
+  // Testimonios. Vacío = la sección no aparece. Reemplazá por reseñas REALES.
   // Formato: { nombre: "", ciudad: "", texto: "" }
-  TESTIMONIOS: [],
+  TESTIMONIOS: [
+    {
+      nombre: "Nombre Apellido (ejemplo)",
+      ciudad: "Presidente Franco",
+      texto:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore. (Reemplazar por un testimonio real.)",
+    },
+    {
+      nombre: "Nombre Apellido (ejemplo)",
+      ciudad: "Ciudad del Este",
+      texto:
+        "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip. (Reemplazar por un testimonio real.)",
+    },
+    {
+      nombre: "Nombre Apellido (ejemplo)",
+      ciudad: "Hernandarias",
+      texto:
+        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore. (Reemplazar por un testimonio real.)",
+    },
+  ],
+
+  // Aliados / certificaciones / menciones. Vacío = sección oculta.
+  // NO inventar sellos reales (MEC, etc.). Completar solo con lo verdadero.
+  ALIADOS: [
+    { nombre: "Aliado / Certificación (ejemplo)" },
+    { nombre: "Aliado / Certificación (ejemplo)" },
+    { nombre: "Aliado / Certificación (ejemplo)" },
+    { nombre: "Aliado / Certificación (ejemplo)" },
+  ],
 
   // --- Envío de solicitudes de inscripción (checkout = lead / carné) ------
   // ⚠️ PENDIENTE DE CONFIRMAR CON CLAUDIR (proyecto principal):
