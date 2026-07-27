@@ -706,6 +706,7 @@ async function viewCurso([id]) {
             <div class="meta-row">${meta.map((m) => `<span class="chip">${m}</span>`).join("")}</div>
           </div>
         </div>
+        ${cursoMediaDetalle(c)}
         ${c.descricao ? `<div class="prose">${richText(c.descricao)}</div>` : ""}
         ${block("¿Qué vas a estudiar?", c.o_que_estuda)}
         ${block("Contenido del curso", c.ementa)}
@@ -738,6 +739,38 @@ function block(titulo, contenido) {
     <h2>${esc(titulo)}</h2>
     <div class="prose">${richText(contenido)}</div>
   </section>`;
+}
+
+// Media del detalle: video demostrativo si hay; si no, la portada; si no, nada.
+function cursoMediaDetalle(c) {
+  if (c.vitrine_video_url) {
+    const v = videoEmbed(c.vitrine_video_url);
+    if (v) return `<div class="curso-media-detalle">
+      <span class="eyebrow">▶ Video demostrativo</span>${v}</div>`;
+  }
+  if (c.imagem_url) {
+    return `<img class="curso-detalle-img" src="${esc(c.imagem_url)}" alt="${esc(c.nome)}" loading="lazy" />`;
+  }
+  return "";
+}
+
+// Convierte una URL de YouTube/Vimeo/MP4 en un reproductor embebido.
+function videoEmbed(url) {
+  const u = String(url || "").trim();
+  if (!u) return "";
+  const yt = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  if (yt) {
+    return `<div class="curso-video"><iframe src="https://www.youtube.com/embed/${yt[1]}" title="Video demostrativo" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+  }
+  const vm = u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vm) {
+    return `<div class="curso-video"><iframe src="https://player.vimeo.com/video/${vm[1]}" title="Video demostrativo" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>`;
+  }
+  if (/\.(mp4|webm|ogg)(\?|#|$)/i.test(u)) {
+    return `<div class="curso-video"><video src="${esc(u)}" controls preload="metadata" playsinline></video></div>`;
+  }
+  // Formato desconocido: enlace seguro para abrir el video.
+  return `<div class="curso-video-link"><a class="btn btn-primary btn-sm" href="${esc(u)}" target="_blank" rel="noopener">▶ Ver video demostrativo</a></div>`;
 }
 
 // ---------------------------------------------------------------------------

@@ -1044,3 +1044,33 @@ h1, h2, h3 { overflow-wrap: break-word; }
   .scroll-progress { display: none; }
   .btn-primary::after, .btn-wa::after, .btn-white::after { display: none; }
 }
+
+/* ---------- Video demostrativo + portada en el detalle ---------- */
+.curso-media-detalle { margin-bottom: 1.6rem; }
+.curso-media-detalle .eyebrow { display: block; margin-bottom: 0.5rem; }
+.curso-video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #000;
+  box-shadow: var(--shadow-lg);
+}
+.curso-video iframe,
+.curso-video video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.curso-video-link { margin: 0.2rem 0 0.4rem; }
+.curso-detalle-img {
+  width: 100%;
+  max-height: 340px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 1.6rem;
+  box-shadow: var(--shadow);
+}

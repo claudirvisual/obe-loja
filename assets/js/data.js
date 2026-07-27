@@ -20,7 +20,7 @@ const CURSO_COLS = [
   "id", "codigo", "nome", "descricao", "ementa", "o_que_estuda",
   "duracao_meses", "carga_horaria", "modalidade", "qtd_certificados",
   "valor_total_gs", "valor_avista_gs", "valor_boleto_gs", "parcelas_boleto_gs",
-  "desconto_pontualidade_gs", "imagem_url", "vitrine_destaque",
+  "desconto_pontualidade_gs", "imagem_url", "vitrine_video_url", "vitrine_destaque",
 ].join(",");
 
 let _cache = null;
