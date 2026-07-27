@@ -282,11 +282,23 @@ function buildFloating(waHref) {
     }
     <button class="fab fab-top" id="toTop" aria-label="Volver arriba">↑</button>`;
   document.body.appendChild(box);
+
+  // Barra de progreso de scroll (arriba de todo)
+  const prog = document.createElement("div");
+  prog.className = "scroll-progress";
+  document.body.appendChild(prog);
+
   const toTop = box.querySelector("#toTop");
   toTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-  window.addEventListener("scroll", () => {
-    box.classList.toggle("show-top", window.scrollY > 500);
-  });
+  window.addEventListener(
+    "scroll",
+    () => {
+      box.classList.toggle("show-top", window.scrollY > 500);
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      prog.style.transform = `scaleX(${h > 0 ? Math.min(window.scrollY / h, 1) : 0})`;
+    },
+    { passive: true }
+  );
 }
 
 // new Date() no está disponible en el harness de build, pero sí en el navegador.
