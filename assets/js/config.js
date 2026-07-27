@@ -47,7 +47,7 @@ export const CONFIG = {
   //                                   sello "Contenido de ejemplo" (para que
   //                                   nadie confunda el Lorem con texto real).
   //    MOSTRAR_PLACEHOLDERS false -> oculta TODO el contenido de ejemplo.
-  MOSTRAR_PLACEHOLDERS: true,
+  MOSTRAR_PLACEHOLDERS: false,
 
   // ¿Quiénes somos? — reemplazá por la historia real de OBE Informática.
   QUIENES_SOMOS: {
