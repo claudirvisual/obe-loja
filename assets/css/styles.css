@@ -1233,7 +1233,8 @@ h1, h2, h3 { overflow-wrap: break-word; }
 .curso-grid { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
 .curso-info h1 { font-size: 1.6rem; margin-bottom: 1.1rem; }
 .curso-main-col { min-width: 0; }
-.curso-main-col > .curso-media-col { margin-bottom: 1.8rem; }
+/* baja el video unos px para alinearlo con la línea del título */
+.curso-main-col > .curso-media-col { margin-top: 0.75rem; margin-bottom: 1.8rem; }
 .curso-main-col .curso-block { margin-top: 2rem; }
 .curso-main-col .curso-block:first-of-type { margin-top: 0; }
 @media (max-width: 860px) {
