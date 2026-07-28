@@ -45,6 +45,9 @@ export const CONFIG = {
   DIRECCION: "Av. Mondaí, al costado del Supermercado Stock — Presidente Franco, Alto Paraná, PY",
   INSTAGRAM_URL: "https://instagram.com/obeinformatica",
 
+  // --- Texto de la forma de pago (editable en el panel) -------------------
+  PAGO_NOTA: "Pago por carné, en cuotas · Guaraníes",
+
   // --- Prueba social (se edita en el panel; null/0 oculta el dato) --------
   SOCIAL_PROOF: { anos: null, alumnos: null, docentes: null },
 

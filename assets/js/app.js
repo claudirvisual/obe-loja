@@ -140,6 +140,7 @@ function applyRemoteConfig(r) {
     if (c.instagram !== undefined) CONFIG.INSTAGRAM_URL = c.instagram || "";
   }
   if (r.flags) CONFIG.FLAGS = { ...CONFIG.FLAGS, ...r.flags };
+  if (r.pago_nota) CONFIG.PAGO_NOTA = r.pago_nota;
   if (r.imagenes) {
     if (r.imagenes.logo_url) CONFIG.LOGO_URL = r.imagenes.logo_url;
     CONFIG.HERO_URL = r.imagenes.hero_url || "";
@@ -220,7 +221,7 @@ function buildChrome() {
       <div class="foot-brand">
         <img class="foot-logo" src="${CONFIG.LOGO_URL || "assets/img/logo.jpg"}" alt="OBE Informática" />
         <p class="muted">Formación profesional · Paraguay</p>
-        <p class="muted">Pago por carné, en cuotas · Guaraníes</p>
+        <p class="muted">${esc(CONFIG.PAGO_NOTA || "")}</p>
         ${social ? `<div class="foot-social">${social}</div>` : ""}
       </div>
       <div class="foot-cols">
@@ -722,7 +723,7 @@ async function viewCurso([id]) {
               <div class="price-main">${esc(p.titulo)}</div>
               ${p.total ? `<div class="price-sub">${esc(p.total)}</div>` : ""}
               ${p.contado ? `<div class="price-sub">${esc(p.contado)}</div>` : ""}
-              <div class="price-note">${icon("wallet", { size: 16, cls: "pn-ic" })} Pago por carné, en cuotas · Guaraníes</div>
+              <div class="price-note">${icon("wallet", { size: 16, cls: "pn-ic" })} ${esc(CONFIG.PAGO_NOTA || "")}</div>
               <a class="btn btn-primary btn-block" href="#/inscripcion/${encodeURIComponent(c.id)}">Inscribite ahora</a>
               ${waBtn}
             </div>
