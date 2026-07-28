@@ -181,6 +181,7 @@ function buildChrome() {
         <a href="#/home#faq">Preguntas</a>
         <span class="nav-actions">
           <a class="btn btn-ghost btn-sm" href="${CONFIG.URL_ALUMNOS}" target="_blank" rel="noopener">Área del alumno ↗</a>
+          <a class="btn btn-ghost btn-sm" href="${CONFIG.URL_PANEL}" target="_blank" rel="noopener">Administración ↗</a>
           ${
             waHeader
               ? `<a class="btn btn-wa btn-sm" href="${waHeader}" target="_blank" rel="noopener">${icon("whatsapp", { size: 18 })} WhatsApp</a>`
