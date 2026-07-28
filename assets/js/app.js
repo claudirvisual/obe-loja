@@ -609,10 +609,12 @@ function testimoniosSection() {
       ${t
         .map(
           (x) => `<figure class="testimonio reveal">
+          ${x.foto ? `<div class="testimonio-foto"><img src="${esc(x.foto)}" alt="${esc(x.nombre || "Alumno de OBE")}" loading="lazy" /></div>` : ""}
           <div class="stars" aria-hidden="true">${STARS}</div>
           <blockquote>${esc(x.texto)}</blockquote>
-          <figcaption><span class="avatar">${esc((x.nombre || "?").slice(0, 1))}</span>
-            <div><strong>${esc(x.nombre || "")}</strong><small>${esc(x.ciudad || "")}</small></div>
+          <figcaption>
+            ${x.foto ? "" : `<span class="avatar">${esc((x.nombre || "?").slice(0, 1))}</span>`}
+            <div><strong>${esc(x.nombre || "")}</strong>${x.ciudad ? `<small>${icon("map-pin", { size: 13, cls: "tst-pin" })} ${esc(x.ciudad)}</small>` : ""}</div>
           </figcaption>
         </figure>`
         )

@@ -1074,3 +1074,14 @@ h1, h2, h3 { overflow-wrap: break-word; }
   margin-bottom: 1.6rem;
   box-shadow: var(--shadow);
 }
+
+/* ---------- Testimonio con foto del alumno (recibiendo el certificado) ---------- */
+.testimonio { overflow: hidden; }
+.testimonio-foto {
+  margin: -1.5rem -1.5rem 1.2rem;
+  height: 200px;
+  background: var(--bg);
+}
+.testimonio-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.testimonio small { display: inline-flex; align-items: center; gap: 3px; }
+.tst-pin { color: var(--gold-600); }
