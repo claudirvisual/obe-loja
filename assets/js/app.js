@@ -776,8 +776,15 @@ function videoEmbed(url, autoplay = false) {
     const attrs = autoplay ? "controls autoplay muted playsinline" : "controls preload=\"metadata\" playsinline";
     return `<div class="curso-video"><video src="${esc(u)}" ${attrs}></video></div>`;
   }
-  // Formato desconocido: enlace seguro para abrir el video.
-  return `<div class="curso-video-link"><a class="btn btn-primary btn-sm" href="${esc(u)}" target="_blank" rel="noopener">▶ Ver video demostrativo</a></div>`;
+  // Reproductor propio del Grupo Visual (videotecaead) — o cualquier URL de
+  // "embed": se mete en un iframe (arranca solo, igual que en el sitio de origen).
+  if (/videotecaead\.com|\/embed\/|\/embed\b/i.test(u)) {
+    const sep = u.includes("?") ? "&" : "?";
+    const src = autoplay ? `${u}${sep}autoplay=1&muted=1` : u;
+    return `<div class="curso-video"><iframe src="${esc(src)}" title="Video demostrativo" loading="lazy" allow="autoplay; fullscreen; encrypted-media; picture-in-picture; accelerometer; gyroscope; clipboard-write" allowfullscreen></iframe></div>`;
+  }
+  // Formato desconocido: como último recurso, intentamos embeberlo en un iframe.
+  return `<div class="curso-video"><iframe src="${esc(u)}" title="Video demostrativo" loading="lazy" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`;
 }
 
 // ---------------------------------------------------------------------------
