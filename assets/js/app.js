@@ -703,36 +703,38 @@ async function viewCurso([id]) {
 
   app.innerHTML = `
     <section class="wrap breadcrumb"><a href="#/cursos">← Volver a los cursos</a></section>
-    <section class="wrap curso-top">
-      <aside class="curso-info">
-        <span class="tag">${esc(a.label)}</span>
-        <h1>${esc(c.nome)}</h1>
-        <div class="info-card">
-          <ul class="info-meta">
-            ${metaRows
-              .map(
-                (m) => `<li><span class="info-ic">${icon(m.ic, { size: 18 })}</span>
-                  <div class="info-txt"><small>${esc(m.label)}</small><strong>${esc(m.val)}</strong></div></li>`
-              )
-              .join("")}
-          </ul>
-          <div class="info-price">
-            <span class="price-label">${p.disponible ? "Inversión" : "Precio"}</span>
-            <div class="price-main">${esc(p.titulo)}</div>
-            ${p.total ? `<div class="price-sub">${esc(p.total)}</div>` : ""}
-            ${p.contado ? `<div class="price-sub">${esc(p.contado)}</div>` : ""}
-            <div class="price-note">${icon("wallet", { size: 16, cls: "pn-ic" })} Pago por carné, en cuotas · Guaraníes</div>
-            <a class="btn btn-primary btn-block" href="#/inscripcion/${encodeURIComponent(c.id)}">Inscribite ahora</a>
-            ${waBtn}
+    <section class="wrap curso-detail">
+      <span class="tag curso-detail-tag">${esc(a.label)}</span>
+      <div class="curso-grid">
+        <aside class="curso-info">
+          <h1>${esc(c.nome)}</h1>
+          <div class="info-card">
+            <ul class="info-meta">
+              ${metaRows
+                .map(
+                  (m) => `<li><span class="info-ic">${icon(m.ic, { size: 18 })}</span>
+                    <div class="info-txt"><small>${esc(m.label)}</small><strong>${esc(m.val)}</strong></div></li>`
+                )
+                .join("")}
+            </ul>
+            <div class="info-price">
+              <span class="price-label">${p.disponible ? "Inversión" : "Precio"}</span>
+              <div class="price-main">${esc(p.titulo)}</div>
+              ${p.total ? `<div class="price-sub">${esc(p.total)}</div>` : ""}
+              ${p.contado ? `<div class="price-sub">${esc(p.contado)}</div>` : ""}
+              <div class="price-note">${icon("wallet", { size: 16, cls: "pn-ic" })} Pago por carné, en cuotas · Guaraníes</div>
+              <a class="btn btn-primary btn-block" href="#/inscripcion/${encodeURIComponent(c.id)}">Inscribite ahora</a>
+              ${waBtn}
+            </div>
           </div>
+        </aside>
+        <div class="curso-main-col">
+          <div class="curso-media-col">${cursoMediaCol(c, a)}</div>
+          ${c.descricao ? `<section class="curso-block"><h2>Sobre el curso</h2><div class="prose">${richText(c.descricao)}</div></section>` : ""}
+          ${block("¿Qué vas a estudiar?", c.o_que_estuda)}
+          ${block("Contenido del curso", c.ementa)}
         </div>
-      </aside>
-      <div class="curso-media-col">${cursoMediaCol(c, a)}</div>
-    </section>
-    <section class="wrap curso-body-full">
-      ${c.descricao ? `<section class="curso-block"><h2>Sobre el curso</h2><div class="prose">${richText(c.descricao)}</div></section>` : ""}
-      ${block("¿Qué vas a estudiar?", c.o_que_estuda)}
-      ${block("Contenido del curso", c.ementa)}
+      </div>
     </section>`;
 }
 

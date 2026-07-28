@@ -1226,3 +1226,16 @@ h1, h2, h3 { overflow-wrap: break-word; }
 @media (max-width: 860px) {
   .curso-top { grid-template-columns: 1fr; }
 }
+
+/* ---------- Detalle: chip arriba, título alineado con el video, texto debajo del video ---------- */
+.curso-detail { padding: 1rem 20px 4rem; }
+.curso-detail-tag { display: inline-block; margin-bottom: 0.85rem; }
+.curso-grid { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
+.curso-info h1 { font-size: 1.6rem; margin-bottom: 1.1rem; }
+.curso-main-col { min-width: 0; }
+.curso-main-col > .curso-media-col { margin-bottom: 1.8rem; }
+.curso-main-col .curso-block { margin-top: 2rem; }
+.curso-main-col .curso-block:first-of-type { margin-top: 0; }
+@media (max-width: 860px) {
+  .curso-grid { grid-template-columns: 1fr; }
+}
