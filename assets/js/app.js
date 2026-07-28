@@ -688,52 +688,51 @@ async function viewCurso([id]) {
   }
   const a = cursoArea(c.nome);
   const p = precioCurso(c);
-  const chipIc = (name) => icon(name, { size: 16, cls: "chip-ic" });
-  const meta = [
-    c.duracao_meses ? `${chipIc("clock")} ${c.duracao_meses} meses` : null,
-    c.carga_horaria ? `${chipIc("book-open")} ${c.carga_horaria} h` : null,
-    `${chipIc("monitor")} ${modalidadLabel(c.modalidade)}`,
-    c.qtd_certificados ? `${chipIc("award")} ${c.qtd_certificados} certificado(s)` : null,
+  const metaRows = [
+    { ic: "monitor", label: "Formato", val: modalidadLabel(c.modalidade) },
+    c.duracao_meses ? { ic: "clock", label: "Duración", val: `${c.duracao_meses} meses` } : null,
+    c.carga_horaria ? { ic: "book-open", label: "Carga horaria", val: `${c.carga_horaria} horas` } : null,
+    c.qtd_certificados ? { ic: "award", label: "Certificación", val: `${c.qtd_certificados} certificado(s)` } : null,
   ].filter(Boolean);
 
+  const waBtn = CONFIG.WHATSAPP_NUMBER
+    ? `<a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(
+        "Hola, quiero información sobre el curso " + c.nome
+      )}">${icon("whatsapp", { size: 18 })} Consultá por WhatsApp</a>`
+    : `<a class="btn btn-ghost btn-block" href="#/inscripcion/${encodeURIComponent(c.id)}">Solicitá información</a>`;
+
   app.innerHTML = `
-    <section class="wrap breadcrumb">
-      <a href="#/cursos">← Volver a los cursos</a>
-    </section>
-    <section class="wrap curso-detalle">
-      <div class="curso-main">
-        <div class="curso-hero">
-          <div class="curso-ic">${icon(a.icon, { size: 32 })}</div>
-          <div>
-            <span class="tag">${esc(a.label)}</span>
-            <h1>${esc(c.nome)}</h1>
-            <div class="meta-row">${meta.map((m) => `<span class="chip">${m}</span>`).join("")}</div>
+    <section class="wrap breadcrumb"><a href="#/cursos">← Volver a los cursos</a></section>
+    <section class="wrap curso-top">
+      <aside class="curso-info">
+        <span class="tag">${esc(a.label)}</span>
+        <h1>${esc(c.nome)}</h1>
+        <div class="info-card">
+          <ul class="info-meta">
+            ${metaRows
+              .map(
+                (m) => `<li><span class="info-ic">${icon(m.ic, { size: 18 })}</span>
+                  <div class="info-txt"><small>${esc(m.label)}</small><strong>${esc(m.val)}</strong></div></li>`
+              )
+              .join("")}
+          </ul>
+          <div class="info-price">
+            <span class="price-label">${p.disponible ? "Inversión" : "Precio"}</span>
+            <div class="price-main">${esc(p.titulo)}</div>
+            ${p.total ? `<div class="price-sub">${esc(p.total)}</div>` : ""}
+            ${p.contado ? `<div class="price-sub">${esc(p.contado)}</div>` : ""}
+            <div class="price-note">${icon("wallet", { size: 16, cls: "pn-ic" })} Pago por carné, en cuotas · Guaraníes</div>
+            <a class="btn btn-primary btn-block" href="#/inscripcion/${encodeURIComponent(c.id)}">Inscribite ahora</a>
+            ${waBtn}
           </div>
         </div>
-        ${cursoMediaDetalle(c)}
-        ${c.descricao ? `<div class="prose">${richText(c.descricao)}</div>` : ""}
-        ${block("¿Qué vas a estudiar?", c.o_que_estuda)}
-        ${block("Contenido del curso", c.ementa)}
-      </div>
-
-      <aside class="curso-side">
-        <div class="price-card">
-          <span class="price-label">${p.disponible ? "Inversión" : "Precio"}</span>
-          <div class="price-main">${esc(p.titulo)}</div>
-          ${p.total ? `<div class="price-sub">${esc(p.total)}</div>` : ""}
-          ${p.contado ? `<div class="price-sub">${esc(p.contado)}</div>` : ""}
-          <div class="price-note">${icon("wallet", { size: 16, cls: "pn-ic" })} Pago por carné, en cuotas · Guaraníes</div>
-          <a class="btn btn-primary btn-block" href="#/inscripcion/${encodeURIComponent(c.id)}">Inscribite ahora</a>
-          ${
-            CONFIG.WHATSAPP_NUMBER
-              ? `<a class="btn btn-wa btn-block" target="_blank" rel="noopener"
-                   href="https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(
-                    "Hola, quiero información sobre el curso " + c.nome
-                  )}">${icon("whatsapp", { size: 18 })} Consultá por WhatsApp</a>`
-              : `<a class="btn btn-ghost btn-block" href="#/inscripcion/${encodeURIComponent(c.id)}">Solicitá información</a>`
-          }
-        </div>
       </aside>
+      <div class="curso-media-col">${cursoMediaCol(c, a)}</div>
+    </section>
+    <section class="wrap curso-body-full">
+      ${c.descricao ? `<section class="curso-block"><h2>Sobre el curso</h2><div class="prose">${richText(c.descricao)}</div></section>` : ""}
+      ${block("¿Qué vas a estudiar?", c.o_que_estuda)}
+      ${block("Contenido del curso", c.ementa)}
     </section>`;
 }
 
@@ -745,33 +744,37 @@ function block(titulo, contenido) {
   </section>`;
 }
 
-// Media del detalle: video demostrativo si hay; si no, la portada; si no, nada.
-function cursoMediaDetalle(c) {
+// Media del detalle (columna derecha): video que arranca solo si hay; si no,
+// la portada del curso; si no, un panel con el ícono del área.
+function cursoMediaCol(c, a) {
   if (c.vitrine_video_url) {
-    const v = videoEmbed(c.vitrine_video_url);
-    if (v) return `<div class="curso-media-detalle">
-      <span class="eyebrow">▶ Video demostrativo</span>${v}</div>`;
+    const v = videoEmbed(c.vitrine_video_url, true);
+    if (v) return v;
   }
   if (c.imagem_url) {
-    return `<img class="curso-detalle-img" src="${esc(c.imagem_url)}" alt="${esc(c.nome)}" loading="lazy" />`;
+    return `<img class="curso-media-img-full" src="${esc(c.imagem_url)}" alt="${esc(c.nome)}" loading="lazy" />`;
   }
-  return "";
+  return `<div class="curso-media-hero">${icon(a.icon, { size: 72 })}</div>`;
 }
 
 // Convierte una URL de YouTube/Vimeo/MP4 en un reproductor embebido.
-function videoEmbed(url) {
+// autoplay: arranca solo (silenciado — es lo único que permiten los navegadores).
+function videoEmbed(url, autoplay = false) {
   const u = String(url || "").trim();
   if (!u) return "";
   const yt = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
   if (yt) {
-    return `<div class="curso-video"><iframe src="https://www.youtube.com/embed/${yt[1]}" title="Video demostrativo" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+    const qs = autoplay ? "?autoplay=1&mute=1&playsinline=1&rel=0" : "?rel=0";
+    return `<div class="curso-video"><iframe src="https://www.youtube.com/embed/${yt[1]}${qs}" title="Video demostrativo" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
   }
   const vm = u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vm) {
-    return `<div class="curso-video"><iframe src="https://player.vimeo.com/video/${vm[1]}" title="Video demostrativo" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>`;
+    const qs = autoplay ? "?autoplay=1&muted=1" : "";
+    return `<div class="curso-video"><iframe src="https://player.vimeo.com/video/${vm[1]}${qs}" title="Video demostrativo" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>`;
   }
   if (/\.(mp4|webm|ogg)(\?|#|$)/i.test(u)) {
-    return `<div class="curso-video"><video src="${esc(u)}" controls preload="metadata" playsinline></video></div>`;
+    const attrs = autoplay ? "controls autoplay muted playsinline" : "controls preload=\"metadata\" playsinline";
+    return `<div class="curso-video"><video src="${esc(u)}" ${attrs}></video></div>`;
   }
   // Formato desconocido: enlace seguro para abrir el video.
   return `<div class="curso-video-link"><a class="btn btn-primary btn-sm" href="${esc(u)}" target="_blank" rel="noopener">▶ Ver video demostrativo</a></div>`;
@@ -904,18 +907,16 @@ function cardCurso(c) {
   const p = precioCurso(c);
   const dur = c.duracao_meses ? `${c.duracao_meses} meses` : "";
   const ch = c.carga_horaria ? `${c.carga_horaria} h` : "";
-  const sub = [dur, ch].filter(Boolean).join(" · ");
+  const sub = [modalidadLabel(c.modalidade), dur, ch].filter(Boolean).join(" · ");
   const desc = excerpt(c.descricao || c.o_que_estuda, 92);
   const media = c.imagem_url
     ? `<div class="curso-media curso-media-photo">
         <img class="curso-media-img" src="${esc(c.imagem_url)}" alt="${esc(c.nome)}" loading="lazy" />
-        <span class="curso-media-area">${esc(a.label)}</span>
-        <span class="tag curso-media-tag">${modalidadLabel(c.modalidade)}</span>
+        <span class="curso-chip">${esc(a.label)}</span>
       </div>`
     : `<div class="curso-media">
-        <span class="curso-media-ic">${icon(a.icon, { size: 26 })}</span>
-        <span class="curso-media-area">${esc(a.label)}</span>
-        <span class="tag curso-media-tag">${modalidadLabel(c.modalidade)}</span>
+        <span class="curso-chip">${esc(a.label)}</span>
+        <span class="curso-media-ic">${icon(a.icon, { size: 32 })}</span>
       </div>`;
   return `
     <a class="card curso-card" href="#/curso/${encodeURIComponent(c.id)}">
