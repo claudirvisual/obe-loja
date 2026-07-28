@@ -186,8 +186,8 @@ function buildChrome() {
               : ""
           }
           <span class="nav-util">
-            <a class="nav-util-link" href="${CONFIG.URL_ALUMNOS}" target="_blank" rel="noopener">Área del alumno ↗</a>
-            <a class="nav-util-link" href="${CONFIG.URL_PANEL}" target="_blank" rel="noopener">Administración ↗</a>
+            <a class="btn btn-ghost btn-xs nav-util-top" href="${CONFIG.URL_ALUMNOS}" target="_blank" rel="noopener">Área del alumno ↗</a>
+            <a class="btn btn-dark btn-xs nav-util-bottom" href="${CONFIG.URL_PANEL}" target="_blank" rel="noopener">Administración ↗</a>
           </span>
         </span>
       </nav>
