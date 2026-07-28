@@ -8,6 +8,7 @@ import {
   submitLead,
   leadWhatsAppUrl,
   fetchVitrineConfig,
+  fetchGate,
 } from "./data.js?v=2";
 import {
   esc,
@@ -148,8 +149,34 @@ function applyRemoteConfig(r) {
   if (r.lead_mode) CONFIG.LEAD_MODE = r.lead_mode;
 }
 
+// Pantalla de "sistema suspendido" (bloqueo desde la SUPREMA-SI).
+function renderSuspendido(msg) {
+  document.body.innerHTML = `
+    <div class="suspendido">
+      <div class="suspendido-box">
+        <img class="suspendido-logo" src="${CONFIG.LOGO_URL || "assets/img/logo.jpg"}" alt="OBE Informática" />
+        <h1>Sitio temporalmente no disponible</h1>
+        <p>${esc(msg || "El sitio está temporalmente fuera de servicio. Por favor, contactá con la administración.")}</p>
+      </div>
+    </div>`;
+}
+
+// Banner de aviso (pago pendiente) sin cortar el sitio.
+function showAvisoBanner(msg) {
+  if (!msg) return;
+  const b = document.createElement("div");
+  b.className = "aviso-banner";
+  b.textContent = msg;
+  document.body.insertBefore(b, document.body.firstChild);
+}
+
 window.addEventListener("hashchange", router);
 window.addEventListener("DOMContentLoaded", async () => {
+  const gate = await fetchGate();
+  if (gate && gate.block_loja) {
+    renderSuspendido(gate.msg_loja);
+    return;
+  }
   try {
     applyRemoteConfig(await fetchVitrineConfig());
   } catch {
@@ -157,6 +184,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
   buildChrome();
   router();
+  if (gate && gate.aviso) showAvisoBanner(gate.msg_aviso);
 });
 
 // ---------------------------------------------------------------------------

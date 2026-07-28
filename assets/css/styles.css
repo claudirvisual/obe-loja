@@ -1240,3 +1240,36 @@ h1, h2, h3 { overflow-wrap: break-word; }
 @media (max-width: 860px) {
   .curso-grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- Sistema suspendido (control plane) + banner de aviso ---------- */
+.suspendido {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background: radial-gradient(1000px 500px at 50% -10%, #22252d, var(--ink) 60%);
+  color: #fff;
+}
+.suspendido-box {
+  max-width: 520px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  padding: 2.5rem 2rem;
+}
+.suspendido-logo { height: 84px; width: auto; margin: 0 auto 1.4rem; background: #fff; padding: 8px 12px; border-radius: 10px; }
+.suspendido h1 { font-size: 1.5rem; margin-bottom: 0.6rem; }
+.suspendido p { color: #c7c9d2; margin: 0; line-height: 1.6; }
+
+.aviso-banner {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-align: center;
+  padding: 0.7rem 1rem;
+}

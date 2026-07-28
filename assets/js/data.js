@@ -26,6 +26,24 @@ const CURSO_COLS = [
 let _cache = null;
 let _configCache = undefined;
 
+/**
+ * Estado de bloqueo (control plane SUPREMA-SI). La tienda lo lee directo de
+ * Supabase (anon). Fail-open: si no responde, devuelve null y el sitio funciona.
+ */
+export async function fetchGate() {
+  try {
+    const url =
+      `${REST}/control_gate?select=block_loja,aviso,msg_loja,msg_aviso` +
+      `&escola_id=eq.${CONFIG.ESCOLA_ID}&limit=1`;
+    const res = await fetch(url, { headers: sbHeaders() });
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return rows[0] || null;
+  } catch {
+    return null;
+  }
+}
+
 /** Config de la tienda (textos, imágenes, prueba social, contacto, flags). */
 export async function fetchVitrineConfig() {
   if (_configCache !== undefined) return _configCache;
